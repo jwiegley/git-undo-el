@@ -88,42 +88,44 @@ Git history for a given line."
           (forward-line))
         (cons adjusted-start adjusted-end)))))
 
-(defun git-undo (&optional start end)
-  "Undo Git-historical changes in the region from START to END."
-  (interactive "r")
-  (if (eq last-command 'git-undo)
-      (git-undo--replace-region)
-    (set (make-local-variable 'git-undo--region-start)
-         (copy-marker start nil))
-    (set (make-local-variable 'git-undo--region-end)
-         (copy-marker end t))
-    (set
-     (make-local-variable 'git-undo--history)
-     (let ((file-name (buffer-file-name)))
-       (destructuring-bind (start-line . end-line)
-           (git-undo--compute-offsets (line-number-at-pos start)
-                                      (1- (line-number-at-pos end)))
-         (with-temp-buffer
-           (message "Retrieving Git history for lines %d to %d..."
-                    start-line end-line)
-           (shell-command
-            (format "git --no-pager log --no-expand-tabs -p -L%d,%d:%s"
-                    start-line end-line
-                    (file-name-nondirectory file-name))
-            (current-buffer))
-           (message "")
-           (goto-char (point-min))
-           (let ((commit t) history)
-             (while (and commit
-                         (re-search-forward "^@@" nil t)
-                         (forward-line))
-               (delete-region (point-min) (point))
-               (setq commit (and (re-search-forward "^commit " nil t)
-                                 (match-beginning 0)))
-               (setq history (cons (buffer-substring-no-properties
-                                    (point-min) (or commit (point-max)))
-                                   history)))
-             (nreverse history))))))
-    (git-undo--replace-region)))
+(defun git-undo--build-history (start end)
+  (let ((file-name (buffer-file-name)))
+    (destructuring-bind (start-line . end-line)
+        (git-undo--compute-offsets (line-number-at-pos start)
+                                   (1- (line-number-at-pos end)))
+      (with-temp-buffer
+        (message "Retrieving Git history for lines %d to %d..."
+                 start-line end-line)
+        (shell-command
+         (format "git --no-pager log --no-expand-tabs -p -L%d,%d:%s"
+                 start-line end-line
+                 (file-name-nondirectory file-name))
+         (current-buffer))
+        (message "")
+        (goto-char (point-min))
+        (let ((commit t) history)
+          (while (and commit
+                      (re-search-forward "^@@" nil t)
+                      (forward-line))
+            (delete-region (point-min) (point))
+            (setq commit (and (re-search-forward "^commit " nil t)
+                              (match-beginning 0)))
+            (setq history (cons (buffer-substring-no-properties
+                                 (point-min) (or commit (point-max)))
+                                history)))
+          (nreverse history))))))
+
+  (defun git-undo (&optional start end)
+    "Undo Git-historical changes in the region from START to END."
+    (interactive "r")
+    (if (eq last-command 'git-undo)
+        (git-undo--replace-region)
+      (set (make-local-variable 'git-undo--region-start)
+           (copy-marker start nil))
+      (set (make-local-variable 'git-undo--region-end)
+           (copy-marker end t))
+      (set (make-local-variable 'git-undo--history)
+           git-undo--build-history start end)
+      (git-undo--replace-region)))
 
 ;;; git-undo.el ends here
