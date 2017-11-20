@@ -38,23 +38,24 @@
 (defvar git-undo--region-end)
 (defvar git-undo--history)
 
+(defun git-undo--apply-diff (hunk)
+  (with-temp-buffer
+    (insert hunk)
+    (goto-char (point-min))
+    (while (not (eobp))
+      (pcase (char-after)
+        (?\  (delete-char 1) (forward-line))
+        (?\+ (delete-char 1) (forward-line))
+        (?\- (delete-region (point) (and (forward-line) (point))))
+        (t (delete-region (point) (point-max)))))
+    (buffer-string)))
+
 (defun git-undo--replace-region ()
   (goto-char git-undo--region-start)
   (delete-region git-undo--region-start git-undo--region-end)
   (if (null git-undo--history)
       (error "There is no more Git history to undo")
-    (insert
-     (let ((history (car git-undo--history)))
-       (with-temp-buffer
-         (insert history)
-         (goto-char (point-min))
-         (while (not (eobp))
-           (pcase (char-after)
-             (?\  (delete-char 1) (forward-line))
-             (?\+ (delete-char 1) (forward-line))
-             (?\- (delete-region (point) (and (forward-line) (point))))
-             (t (delete-region (point) (point-max)))))
-         (buffer-string))))
+    (insert (git-undo--apply-diff (car git-undo--history)))
     (setq git-undo--history (cdr git-undo--history)))
   (goto-char git-undo--region-end))
 
@@ -81,12 +82,12 @@ Git history for a given line."
             (?\- (setq adjustment (1+ adjustment)))
             (t (setq line (1+ line))))
           (when (= (- start adjustment) line)
-            (setq adjusted-start (+ start adjustment 1)))
+            (setq adjusted-start (+ start adjustment)))
           (when (= (- end adjustment) line)
             (setq adjusted-end (+ end adjustment))
             (goto-char (point-max)))
           (forward-line))
-        (cons adjusted-start adjusted-end)))))
+        (cons (1+ adjusted-start) adjusted-end)))))
 
 (defun git-undo--build-history (start end)
   (let ((file-name (buffer-file-name)))
@@ -127,5 +128,20 @@ Git history for a given line."
     (set (make-local-variable 'git-undo--history)
          (git-undo--build-history start end))
     (git-undo--replace-region)))
+
+(defun git-undo-browse (&optional start end)
+  "Undo Git-historical changes in the region from START to END."
+  (interactive "r")
+  (let ((history (git-undo--build-history start end)))
+    (display-buffer
+     (with-current-buffer
+         (get-buffer-create "*Git Region History*")
+       (delete-region (point-min) (point-max))
+       (dolist (entry history)
+         (insert (git-undo--apply-diff entry)
+                 #("-----\n" 0 5 (face bold))))
+       (delete-region (- (point) 6) (point))
+       (goto-char (point-min))
+       (current-buffer)))))
 
 ;;; git-undo.el ends here
