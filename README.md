@@ -15,3 +15,8 @@ Note that if this command is run twice, it begins the walkthrough over again,
 since there's no easy way of knowing at which point in history you were before
 you repeated the command. Perhaps this could be added by searching through the
 Git history for matching contents.
+
+## Example use
+
+Mark a region in a Git-controlled buffer and execute `M-x git-undo`. Then use
+`C-x z` to step through changes to that region in Git's history.
