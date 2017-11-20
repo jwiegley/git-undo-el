@@ -116,6 +116,7 @@ Git history for a given line."
                                 history)))
           (nreverse history))))))
 
+;;;###autoload
 (defun git-undo (&optional start end)
   "Undo Git-historical changes in the region from START to END."
   (interactive "r")
@@ -129,6 +130,7 @@ Git history for a given line."
          (git-undo--build-history start end))
     (git-undo--replace-region)))
 
+;;;###autoload
 (defun git-undo-browse (&optional start end)
   "Undo Git-historical changes in the region from START to END."
   (interactive "r")
