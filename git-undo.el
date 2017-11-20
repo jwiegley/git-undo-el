@@ -115,17 +115,17 @@ Git history for a given line."
                                 history)))
           (nreverse history))))))
 
-  (defun git-undo (&optional start end)
-    "Undo Git-historical changes in the region from START to END."
-    (interactive "r")
-    (if (eq last-command 'git-undo)
-        (git-undo--replace-region)
-      (set (make-local-variable 'git-undo--region-start)
-           (copy-marker start nil))
-      (set (make-local-variable 'git-undo--region-end)
-           (copy-marker end t))
-      (set (make-local-variable 'git-undo--history)
-           git-undo--build-history start end)
-      (git-undo--replace-region)))
+(defun git-undo (&optional start end)
+  "Undo Git-historical changes in the region from START to END."
+  (interactive "r")
+  (if (eq last-command 'git-undo)
+      (git-undo--replace-region)
+    (set (make-local-variable 'git-undo--region-start)
+         (copy-marker start nil))
+    (set (make-local-variable 'git-undo--region-end)
+         (copy-marker end t))
+    (set (make-local-variable 'git-undo--history)
+         (git-undo--build-history start end))
+    (git-undo--replace-region)))
 
 ;;; git-undo.el ends here
