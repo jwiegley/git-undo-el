@@ -24,10 +24,10 @@
 
 ;;; Commentary:
 
-;; Selection a region and then use M-x git-undo to revert changes in that
-;; region to the most recent Git historical version. Use C-x z to repeatdly
-;; walk back through the history. M-x git-undo-browse will let you see the
-;; history of changes in a separate buffer.
+;; Select a region and then use M-x git-undo to revert changes in that region
+;; to the most recent Git historical version. Use C-x z to repeatdly walk back
+;; through the history. M-x git-undo-browse will let you see the history of
+;; changes in a separate buffer.
 
 ;;; Code:
 
