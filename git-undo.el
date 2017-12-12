@@ -149,4 +149,5 @@ Git history for a given line."
        (goto-char (point-min))
        (current-buffer)))))
 
+(provide 'git-undo)
 ;;; git-undo.el ends here
