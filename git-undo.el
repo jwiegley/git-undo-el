@@ -1,4 +1,4 @@
-;;; git-undo.el Foundation, Inc.
+;;; git-undo.el --- Revert region to most recent Git historical version
 
 ;; Author: John Wiegley <johnw@newartisans.com>
 ;; Created: 20 Nov 2017
