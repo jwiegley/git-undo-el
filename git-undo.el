@@ -50,7 +50,7 @@
         (?\  (delete-char 1) (forward-line))
         (?\+ (delete-char 1) (forward-line))
         (?\- (delete-region (point) (and (forward-line) (point))))
-        (t (delete-region (point) (point-max)))))
+        (_ (delete-region (point) (point-max)))))
     (buffer-string)))
 
 (defun git-undo--replace-region ()
@@ -83,7 +83,7 @@ Git history for a given line."
           (pcase (char-after)
             (?\+ (setq adjustment (1- adjustment)))
             (?\- (setq adjustment (1+ adjustment)))
-            (t (setq line (1+ line))))
+            (_ (setq line (1+ line))))
           (when (= (- start adjustment) line)
             (setq adjusted-start (+ start adjustment)))
           (when (= (- end adjustment) line)
