@@ -5,7 +5,7 @@
 ;; Version: 0.1
 
 ;; Keywords: git diff history log undo
-;; X-URL: https://github.com/jwiegley/git-undo
+;; X-URL: https://github.com/jwiegley/git-undo-el
 
 ;; This program is free software; you can redistribute it and/or
 ;; modify it under the terms of the GNU General Public License as
