@@ -31,7 +31,7 @@
 
 ;;; Code:
 
-(require 'cl)
+(require 'cl-lib)
 
 (defgroup git-undo nil
   "Successively undo a buffer region using Git history"
@@ -94,7 +94,7 @@ Git history for a given line."
 
 (defun git-undo--build-history (start end)
   (let ((file-name (buffer-file-name)))
-    (destructuring-bind (start-line . end-line)
+    (cl-destructuring-bind (start-line . end-line)
         (git-undo--compute-offsets (line-number-at-pos start)
                                    (1- (line-number-at-pos end)))
       (with-temp-buffer
